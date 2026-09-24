@@ -1,0 +1,51 @@
+name: Verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: test-results/
+  sql-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_PID: Developer
+          # Disposable CI-only database credential, never a production credential.
+          MSSQL_SA_PASSWORD: CI-Only-Evaluations!2026
+        ports: ['1433:1433']
+    env:
+      SQL_HOST: localhost
+      SQL_USER: sa
+      SQL_PASSWORD: CI-Only-Evaluations!2026
+      SQL_DATABASE: EvaluationDemo
+      SQL_TRUST_CERTIFICATE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run db:setup
+      - run: npm run test:sqlserver
