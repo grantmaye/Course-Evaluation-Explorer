@@ -87,8 +87,8 @@ export default function App() {
       <div className="content">
         <div className="page-heading"><div><p className="eyebrow">EVALUATION EXPLORER</p><h1>{tab === 'report' ? 'A clearer view of feedback.' : tab === 'query' ? 'Same answers. Less work?' : 'Follow the data.'}</h1><p className="intro">{tab === 'report' ? 'Explore course evaluations, then see the query behind the numbers.' : tab === 'query' ? 'Compare two date filters. Measure the difference. Keep the results correct.' : 'A five-minute tour from a React filter to a database result.'}</p></div><span className="project-tag">PORTFOLIO DEMO</span></div>
         <form className="filters" onSubmit={loadReport}>
-          <label>Institution<select value={filters.institutionId} onChange={(e) => setFilters({ ...filters, institutionId: e.target.value })}>{(meta?.institutions || [{ id: 1, name: 'Northstar College' }]).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-          <label>Submission year<select value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.target.value })}>{[2023, 2024, 2025, 2026, 2027].map((year) => <option key={year}>{year}</option>)}</select></label>
+          <label>Institution<select aria-label="Institution" value={filters.institutionId} onChange={(e) => setFilters({ ...filters, institutionId: e.target.value })}>{(meta?.institutions || [{ id: 1, name: 'Northstar College' }]).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label>Submission year<select aria-label="Submission year" value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.target.value })}>{[2023, 2024, 2025, 2026, 2027].map((year) => <option key={year}>{year}</option>)}</select></label>
           <button className="primary" disabled={loading}>{loading ? 'Loading report…' : 'Run report'} <span aria-hidden="true">↗</span></button>
           <p className="filter-note">{changed ? 'Filters changed. Run the report to apply.' : 'One overall rating per submitted evaluation.'}</p>
         </form>
