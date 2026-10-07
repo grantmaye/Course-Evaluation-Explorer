@@ -6,6 +6,22 @@ A small **React + Node.js + SQL Server** reporting application. Explore fictiona
 
 This is an independent, AI-assisted learning project inspired by course-evaluation reporting. It contains no employer code, student records, or historical performance claims.
 
+![Evaluation Explorer showing a fictional course report in SQLite preview mode](docs/images/dashboard.png)
+
+*Captured from the [desktop browser test](test/browser/report.spec.js) in [CI run 36008509267](https://github.com/grantmaye/Course-Evaluation-Explorer/actions/runs/36008509267). The figures are fictional fixture results, not institutional outcomes.*
+
+## Start here
+
+**Problem:** make course summaries understandable while keeping the reporting query and its tradeoffs visible.
+
+**Working flow:** filter by institution and year, inspect weighted ratings, and compare two date predicates while checking that their results agree.
+
+- [Run the portable preview](#run-on-your-computer) and follow the [five-minute demo](#five-minute-demo).
+- Trace the [React-to-API code map](#code-map), [report calculations](server/report.js), and [typed SQL Server adapter](server/mssql.js).
+- Inspect the [T-SQL procedures](sql/report.sql), [report/API tests](test/report.test.js), [SQL Server integration tests](test/sqlserver.test.js), and [browser tests](test/browser/report.spec.js). [CI results](https://github.com/grantmaye/Course-Evaluation-Explorer/actions/workflows/ci.yml) distinguish application and SQL Server jobs.
+
+**Scope:** the default preview uses SQLite; SQL Server requires a separate instance. Local timing is not a production speedup claim. See [deliberate limits](#deliberate-limits).
+
 ## Run on your computer
 
 Use **Node.js 24.15 or newer**.
