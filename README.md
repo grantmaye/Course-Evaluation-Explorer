@@ -22,6 +22,12 @@ This is an independent, AI-assisted learning project inspired by course-evaluati
 
 **Scope:** the default preview uses SQLite; SQL Server requires a separate instance. Local timing is not a production speedup claim. See [deliberate limits](#deliberate-limits).
 
+## Learn the project
+
+- [Technical manual](docs/technical-manual.md): calculations, SQL contracts, setup, failure labs, and maintainer exercises.
+- [Product story](docs/product-story.md): a hypothetical reporting workflow, intended users, limitations, and demo narration.
+- [Dependency/security scope](SECURITY.md): the remaining upstream SQL-driver advisory.
+
 ## Run on your computer
 
 Use **Node.js 24.15 or newer**.

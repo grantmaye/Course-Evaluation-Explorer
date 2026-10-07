@@ -59,3 +59,34 @@ test('HTTP API returns correct aggregates and fails safely on invalid requests',
   const comparison = await (await fetch(`${base}/api/compare?institutionId=1&year=2025`)).json();
   assert.equal(comparison.sameResults, true);
 });
+
+test('comparison checks every measured result rather than only the last pair', async () => {
+  const calls = [];
+  const row = { courseOfferingId: 101, responseCount: 2, ratingTotal: 9, averageRating: 4.5 };
+  const store = { query(_filters, mode) {
+    calls.push(mode);
+    // Two warmups, then the first measured baseline is deliberately wrong.
+    return [{ ...row, ratingTotal: calls.length === 3 ? 8 : 9 }];
+  } };
+  assert.equal((await compareQueries(store, filters)).sameResults, false);
+  assert.deepEqual(calls, ['baseline', 'range', 'baseline', 'range', 'range', 'baseline',
+    'baseline', 'range', 'range', 'baseline', 'baseline', 'range']);
+});
+
+test('comparison detects a changed intermediate range even when final results agree', async () => {
+  let call = 0;
+  const store = { query() {
+    call++;
+    return call === 6 ? [] : [{ courseOfferingId: 101, responseCount: 1, ratingTotal: 4, averageRating: 4 }];
+  } };
+  assert.equal((await compareQueries(store, filters)).sameResults, false);
+});
+
+test('adapter failures produce a recoverable HTTP error without exposing internal details', async (t) => {
+  const app = createApp({ query() { throw new Error('Internal database diagnostic'); } });
+  await new Promise((resolve) => app.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise((resolve) => app.close(resolve)));
+  const response = await fetch(`http://127.0.0.1:${app.address().port}/api/report`);
+  assert.equal(response.status, 500);
+  assert.doesNotMatch(JSON.stringify(await response.json()), /Internal database diagnostic/);
+});

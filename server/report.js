@@ -35,20 +35,21 @@ export function present(rows) {
 // Both run against the SAME index. These are query-call timings, not server CPU/IO.
 export async function compareQueries(store, filters) {
   const samples = { baseline: [], range: [] };
-  let baseline, range;
+  const measuredRows = [];
   await store.query(filters, 'baseline');
   await store.query(filters, 'range');
   for (let i = 0; i < 5; i++) {
     for (const mode of i % 2 ? ['range', 'baseline'] : ['baseline', 'range']) {
       const result = await timedQuery(store, filters, mode);
       samples[mode].push(result.durationMs);
-      if (mode === 'baseline') baseline = result.rows;
-      else range = result.rows;
+      measuredRows.push(result.rows);
     }
   }
-  const sameResults = baseline.length === range.length && baseline.every((row, i) =>
-    row.courseOfferingId === range[i].courseOfferingId && row.responseCount === range[i].responseCount &&
-    row.ratingTotal === range[i].ratingTotal && Math.abs(row.averageRating - range[i].averageRating) < 0.000001);
+  // A matching final pair must not hide an earlier mismatch or changing dataset.
+  const baseline = measuredRows[0];
+  const sameResults = measuredRows.every((rows) => baseline.length === rows.length && baseline.every((row, i) =>
+    row.courseOfferingId === rows[i].courseOfferingId && row.responseCount === rows[i].responseCount &&
+    row.ratingTotal === rows[i].ratingTotal && Math.abs(row.averageRating - rows[i].averageRating) < 0.000001));
   const median = (values) => [...values].sort((a, b) => a - b)[2];
   return { sameResults, baselineMs: median(samples.baseline), rangeMs: median(samples.range), samples: 5 };
 }
